@@ -1,0 +1,6 @@
+{
+  "name": "Scoopy Art - Sparepart & Modifikasi Motor Bekasi",
+  "description": "Pusat sparepart motor terlengkap dan berkualitas di Bekasi. Upgrade performa dan estetika motormu dengan produk resmi RCB, KTC, dan KTM.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
