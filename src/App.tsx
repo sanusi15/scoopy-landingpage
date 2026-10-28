@@ -288,6 +288,8 @@ export default function App() {
                 3. BAGIAN KATEGORI PRODUK (Sparepart)
                ================================================================= */}
             <CatalogSection
+              selectedItems={selectedItems}
+              onToggleSelectItem={handleToggleSelectItem}
               onOpenFullCatalog={(catId) => handleOpenFullCatalog(catId || 'all', 'all')}
               onProceedToConsult={handleProceedToConsult}
             />

@@ -12,7 +12,7 @@ import {
   formatIDR,
   filterSpareparts,
 } from '../utils/catalogLogic';
-import { CategoryProductVisual } from './SparepartVisuals';
+import { ProductShowcaseImage } from './SparepartVisuals';
 import {
   Search,
   RotateCcw,
@@ -125,7 +125,7 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
               </h1>
               <p className="mt-2.5 text-sm sm:text-base text-neutral-600 leading-relaxed">
                 Gunakan filter jenis sparepart, tipe kendaraan, rentang harga, atau pencarian
-                cepat untuk menemukan komponen original RCB, KTC, dan KTM.
+                cepat untuk menemukan komponen original RCB, KTC, KTM, X1R, Mupo, dan Solfili.
               </p>
             </div>
 
@@ -141,7 +141,7 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari nama part, ukuran, atau motor (mis. SP811, Scoopy)..."
+                  placeholder="Cari nama part, ukuran, atau motor (mis. Flow Pro, X1R, Mupo)..."
                   className="w-full pl-10 pr-9 py-3 text-sm bg-[#F8F9FA] border border-neutral-200 rounded-xl text-[#212529] placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:border-[#E03A3E] transition-colors"
                 />
                 {searchQuery && (
@@ -280,7 +280,7 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
 
               {/* Quick Motor Buttons */}
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {['Honda Scoopy', 'Honda Beat', 'Honda Vario 160', 'Vespa Matic'].map((motor) => (
+                {['Honda Scoopy', 'Honda Beat', 'Honda Vario 125/150', 'Honda Vario 160'].map((motor) => (
                   <button
                     key={motor}
                     type="button"
@@ -355,15 +355,15 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
             {/* 4. Filter Brand Resmi */}
             <div className="space-y-2.5 pt-4 border-t border-neutral-100">
               <span className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                4. Brand Resmi
+                4. Brand Produk
               </span>
-              <div className="grid grid-cols-4 gap-1.5">
-                {(['all', 'RCB', 'KTC', 'KTM'] as const).map((b) => (
+              <div className="grid grid-cols-3 gap-1.5">
+                {(['all', 'RCB', 'KTC', 'KTM', 'X1R', 'MUPO', 'SOLFILI'] as const).map((b) => (
                   <button
                     key={b}
                     type="button"
                     onClick={() => setBrand(b)}
-                    className={`py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`py-2 px-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap truncate ${
                       brand === b
                         ? 'bg-[#E03A3E] text-white'
                         : 'bg-[#F8F9FA] text-neutral-700 hover:bg-neutral-200/70'
@@ -460,9 +460,18 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
                           <span className="text-emerald-700 font-medium">Ready</span>
                         </div>
 
-                        {/* Transparent PNG-style Product Illustration */}
-                        <div className="relative h-44 w-full flex items-center justify-center my-2 bg-[#F8F9FA]/70 rounded-xl p-4 transition-transform duration-200 group-hover:scale-[1.02]">
-                          <CategoryProductVisual categoryId={item.categoryId} />
+                        {/* Product Photo or Transparent Vector Illustration */}
+                        <div
+                          className={`relative w-full flex items-center justify-center my-2 rounded-xl overflow-hidden ${
+                            item.imageUrl ? 'aspect-square' : 'h-48 bg-[#F8F9FA]/70 p-4'
+                          }`}
+                        >
+                          <ProductShowcaseImage
+                            imageUrl={item.imageUrl}
+                            alt={item.name}
+                            categoryId={item.categoryId}
+                            className="w-full h-full"
+                          />
                         </div>
 
                         {/* Product Title & Specs */}
@@ -560,8 +569,12 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
               {inspectedItem.name}
             </h3>
 
-            <div className="my-5 h-48 bg-[#F8F9FA] rounded-xl p-4 flex items-center justify-center">
-              <CategoryProductVisual categoryId={inspectedItem.categoryId} />
+            <div className="my-5 h-64 bg-[#F8F9FA] rounded-xl p-2 flex items-center justify-center">
+              <ProductShowcaseImage
+                imageUrl={inspectedItem.imageUrl}
+                alt={inspectedItem.name}
+                categoryId={inspectedItem.categoryId}
+              />
             </div>
 
             <div className="space-y-3 text-sm">

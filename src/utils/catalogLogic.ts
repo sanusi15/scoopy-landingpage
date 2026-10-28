@@ -1,5 +1,5 @@
 export type CategoryId = 'velg' | 'shockbreaker' | 'pengereman' | 'cvt' | 'aksesoris';
-export type BrandId = 'RCB' | 'KTC' | 'KTM';
+export type BrandId = 'RCB' | 'KTC' | 'KTM' | 'X1R' | 'MUPO' | 'SOLFILI';
 export type PriceRangeId = 'all' | 'under-500k' | '500k-1500k' | 'above-1500k';
 export type SortOptionId = 'featured' | 'price-asc' | 'price-desc' | 'name-asc';
 
@@ -12,6 +12,7 @@ export interface ProductCategory {
   highlightSpec: string;
   featuredBrand: BrandId;
   startingPrice: number;
+  imageUrl?: string;
 }
 
 export interface SparepartItem {
@@ -25,10 +26,11 @@ export interface SparepartItem {
   weightOrDimension: string;
   inStock: boolean;
   isFeatured?: boolean;
+  imageUrl?: string;
 }
 
 export interface BrandPartner {
-  id: BrandId;
+  id: 'RCB' | 'KTC' | 'KTM';
   name: string;
   fullName: string;
   origin: string;
@@ -98,43 +100,99 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
     title: 'Shockbreaker',
     subtitle: 'Redaman Maksimal, Berkendara Nyaman.',
     description: 'Suspensi belakang tabung atas dan bawah dengan pengaturan preload, rebound, serta kompresi yang menjaga kestabilan di berbagai kondisi jalan.',
-    highlightSpec: 'Full Adjustable Rebound & Preload · Gas Nitrogen',
-    featuredBrand: 'KTC',
+    highlightSpec: 'RCB Flow Pro & KTC Extreme · 305mm / 330mm / 340mm',
+    featuredBrand: 'RCB',
     startingPrice: 1250000,
+    imageUrl: '/assets/aistudio/IMG_0676_bfda774e.PNG',
   },
   {
     id: 'pengereman',
     number: '03',
     title: 'Pengereman',
     subtitle: 'Keamanan Utama dengan Rem Presisi.',
-    description: 'Master rem radial, kaliper monoblock, serta selang rem braided tahan panas untuk respons pengereman yang pakem dan terukur.',
-    highlightSpec: 'Piston Forged 14mm–17mm · Kaliper 2P & 4P',
-    featuredBrand: 'RCB',
-    startingPrice: 680000,
+    description: 'Piringan cakram Solfili WD-01 drilled & slotted, master rem radial, serta kaliper monoblock untuk respons pengereman yang pakem dan terukur.',
+    highlightSpec: 'Solfili Disk 190mm · Heat-Treated Stainless Steel',
+    featuredBrand: 'SOLFILI',
+    startingPrice: 420000,
+    imageUrl: '/assets/aistudio/IMG_0679_9bf4124d.PNG',
   },
   {
     id: 'cvt',
     number: '04',
     title: 'CVT & Mesin',
     subtitle: 'Akselerasi Halus & Responsif.',
-    description: 'Paket upgrade kirian harian hingga touring: rumah roller bubut presisi, van belt kevlar tahan panas, roller teflon, dan per CVT racing.',
-    highlightSpec: 'Aramid Kevlar Belt · Anti-Gredek & Responsif',
-    featuredBrand: 'KTC',
+    description: 'Bak CVT Billet CNC Mupo high-grade aluminium serta paket upgrade kirian harian hingga touring untuk akselerasi halus bebas gredek.',
+    highlightSpec: 'Mupo Billet CNC Cover CVT · High Temp Resistance',
+    featuredBrand: 'MUPO',
     startingPrice: 380000,
+    imageUrl: '/assets/aistudio/IMG_0678_3bc35099.PNG',
   },
   {
     id: 'aksesoris',
     number: '05',
     title: 'Aksesoris',
     subtitle: 'Detail Kecil, Tampilan Maksimal.',
-    description: 'Sentuhan akhir estetika meliputi spion CNC anti-silau, handgrip kompon lembut, jalu stang stainless, dan baut titanium.',
-    highlightSpec: 'Billet Aluminum T6 · Ergonomi Harian',
-    featuredBrand: 'KTM',
+    description: 'Swing Arm CNC X1R struktur hollow ringan, spion CNC anti-silau, handgrip kompon lembut, dan detail komponen aluminium billet presisi.',
+    highlightSpec: 'Swing Arm CNC X1R · Plug & Play Mounting',
+    featuredBrand: 'X1R',
     startingPrice: 185000,
+    imageUrl: '/assets/aistudio/IMG_0677_749fdf4c.PNG',
   },
 ];
 
 export const SPAREPART_CATALOG: SparepartItem[] = [
+  {
+    id: 'rcb-flow-pro-matic',
+    name: 'Shockbreaker RCB Flow Pro Matic Single',
+    categoryId: 'shockbreaker',
+    brand: 'RCB',
+    price: 1780000,
+    compatibility: ['Honda Scoopy', 'Honda Beat', 'Honda Vario 125/150', 'Honda Vario 160', 'Honda Stylo 160'],
+    specSummary: 'Tersedia 305mm (Kepala Panjang), 330mm (Kepala Panjang) & 340mm (Kepala Pendek) · Full Black Series',
+    weightOrDimension: '305mm / 330mm / 340mm',
+    inStock: true,
+    isFeatured: true,
+    imageUrl: '/assets/aistudio/IMG_0676_bfda774e.PNG',
+  },
+  {
+    id: 'x1r-swing-arm-cnc-vario',
+    name: 'Swing Arm CNC X1R Vario (X-Wheel Edition)',
+    categoryId: 'aksesoris',
+    brand: 'X1R',
+    price: 1450000,
+    compatibility: ['Honda Vario 125/150', 'Honda Vario 160', 'Honda Scoopy'],
+    specSummary: 'Material Aluminium Alloy · Light Weight Hollow CNC Structure · Plug & Play Mounting',
+    weightOrDimension: 'CNC Billet Alloy',
+    inStock: true,
+    isFeatured: true,
+    imageUrl: '/assets/aistudio/IMG_0677_749fdf4c.PNG',
+  },
+  {
+    id: 'mupo-bak-cvt-billet-cnc',
+    name: 'Mupo Bak CVT Billet CNC Vario 125 / 150',
+    categoryId: 'cvt',
+    brand: 'MUPO',
+    price: 2450000,
+    compatibility: ['Honda Vario 125/150', 'Honda Scoopy', 'Honda PCX 160'],
+    specSummary: 'Aluminium Billet High-Grade · Precision CNC Machined · Anodizing Process Coloring · High Temp Resistance',
+    weightOrDimension: 'Cover CVT Billet CNC',
+    inStock: true,
+    isFeatured: true,
+    imageUrl: '/assets/aistudio/IMG_0678_3bc35099.PNG',
+  },
+  {
+    id: 'solfili-disk-brake-wd01-190mm',
+    name: 'Solfili Disk Brake WD-01 190mm Beat / Scoopy / Vario',
+    categoryId: 'pengereman',
+    brand: 'SOLFILI',
+    price: 420000,
+    compatibility: ['Honda Beat', 'Honda Scoopy', 'Honda Vario 125/150', 'Honda Genio'],
+    specSummary: 'Premium Grade Material · Stepped Design · Drilled & Slotted Rotor · E-Coating Inner Disk · Heat-Treated Stainless',
+    weightOrDimension: 'Diameter 190mm',
+    inStock: true,
+    isFeatured: true,
+    imageUrl: '/assets/aistudio/IMG_0679_9bf4124d.PNG',
+  },
   {
     id: 'rcb-sp811-scoopy',
     name: 'Velg RCB SP811 Ring 12 Gold Matte',
@@ -157,7 +215,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     specSummary: 'Material Alloy Heat-Treated · Finishing Anodized Matte',
     weightOrDimension: 'Ring 14 × 1.85/2.15',
     inStock: true,
-    isFeatured: true,
   },
   {
     id: 'ktc-cnc-eight-spoke',
@@ -180,7 +237,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     specSummary: 'Tabung Bawah · Klik Rebound, Compression & Preload Aktif',
     weightOrDimension: 'Tinggi 310mm',
     inStock: true,
-    isFeatured: true,
   },
   {
     id: 'rcb-vd-series-330',
@@ -191,18 +247,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     compatibility: ['Honda Scoopy', 'Honda Vario 125/150', 'Honda Vario 160', 'Honda Stylo 160'],
     specSummary: '2 Set Per Cadangan · Redaman Progresif Harian & Touring',
     weightOrDimension: 'Tinggi 330mm',
-    inStock: true,
-    isFeatured: true,
-  },
-  {
-    id: 'ktc-evo-matic-320',
-    name: 'Shockbreaker KTC Evo Tabung Atas Red Matte',
-    categoryId: 'shockbreaker',
-    brand: 'KTC',
-    price: 1250000,
-    compatibility: ['Yamaha Grand Filano', 'Yamaha Fazzio', 'Honda Scoopy'],
-    specSummary: 'Rebound 24 Klik Aktif · Piston Rod 14mm Hard Chrome',
-    weightOrDimension: 'Tinggi 320mm',
     inStock: true,
   },
   {
@@ -215,7 +259,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     specSummary: 'Tuas Folding Lever CNC · Tabung Minyak Rem Smoke Transparan',
     weightOrDimension: 'Piston Bore 14mm',
     inStock: true,
-    isFeatured: true,
   },
   {
     id: 'ktc-monoblock-4p',
@@ -229,17 +272,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     inStock: true,
   },
   {
-    id: 'rcb-r55-caliper-2p',
-    name: 'Kaliper RCB R55 Series 2 Piston + Cakram Floating',
-    categoryId: 'pengereman',
-    brand: 'RCB',
-    price: 680000,
-    compatibility: ['Honda Scoopy', 'Honda Beat', 'Honda Genio'],
-    specSummary: 'Pengereman Presisi · Tahan Panas Tinggi Saat Macet',
-    weightOrDimension: 'Disc 220mm · 2 Piston',
-    inStock: true,
-  },
-  {
     id: 'ktc-cvt-fullset-scoopy',
     name: 'Paket Upgrade CVT KTC Kytaco Anti-Gredek',
     categoryId: 'cvt',
@@ -249,7 +281,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     specSummary: 'Pulley Custom Sudut 13.8° + Van Belt Kevlar + Roller + Per 1500 RPM',
     weightOrDimension: 'Full Package Kit',
     inStock: true,
-    isFeatured: true,
   },
   {
     id: 'ktm-powerparts-cvt-belt',
@@ -263,17 +294,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     inStock: true,
   },
   {
-    id: 'ktc-mangkok-kampas-ganda',
-    name: 'Mangkok Kopling CNC Anti-Slip & Kampas Carbon KTC',
-    categoryId: 'cvt',
-    brand: 'KTC',
-    price: 380000,
-    compatibility: ['Honda Vario 160', 'Honda Stylo 160', 'Honda PCX 160', 'Vespa Matic'],
-    specSummary: 'Lubang Pelepas Panas Presisi · Bebas Getar Tarikan Awal',
-    weightOrDimension: 'Billet Bell + Carbon Shoe',
-    inStock: true,
-  },
-  {
     id: 'ktm-cnc-mirror-handgrip',
     name: 'Paket Spion CNC Round & Handgrip Racing KTM',
     categoryId: 'aksesoris',
@@ -283,7 +303,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     specSummary: 'Kaca Blue Lens Anti-Silau + Handgrip Karet Soft Compound',
     weightOrDimension: 'Universal Plug & Play',
     inStock: true,
-    isFeatured: true,
   },
   {
     id: 'rcb-hg66-balancer',
@@ -296,17 +315,6 @@ export const SPAREPART_CATALOG: SparepartItem[] = [
     weightOrDimension: 'Panjang 120mm',
     inStock: true,
   },
-  {
-    id: 'ktm-titanium-bolt-cover',
-    name: 'Set Baut Titanium & Tutup Master Rem CNC KTM',
-    categoryId: 'aksesoris',
-    brand: 'KTM',
-    price: 185000,
-    compatibility: ['Honda Scoopy', 'Honda Vario 160', 'Honda PCX 160', 'Vespa Matic'],
-    specSummary: 'Anti-Karat Grade 5 · Detail Bersih untuk Area Cockpit',
-    weightOrDimension: 'Isi 12 Pcs + Cap CNC',
-    inStock: true,
-  },
 ];
 
 export const BRAND_PARTNERS: BrandPartner[] = [
@@ -315,7 +323,7 @@ export const BRAND_PARTNERS: BrandPartner[] = [
     name: 'RCB',
     fullName: 'Racing Boy Official Partner',
     origin: 'Motorsport Alloy & Braking',
-    specialty: 'Velg Racing, Master Rem Radial & Suspensi',
+    specialty: 'Velg Racing, Shockbreaker Flow Pro & Master Rem',
     description: 'Distributor dan bengkel pemasangan resmi produk RCB dengan jaminan keaslian serial number dan garansi pabrikan.',
     warrantyNote: '100% Original · Garansi Resmi',
   },

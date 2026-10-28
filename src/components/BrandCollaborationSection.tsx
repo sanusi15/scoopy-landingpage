@@ -1,10 +1,10 @@
 import React from 'react';
-import { BRAND_PARTNERS, BrandId } from '../utils/catalogLogic';
+import { BRAND_PARTNERS, BrandId, BrandPartner } from '../utils/catalogLogic';
 import { BrandPartnerLogo } from './SparepartVisuals';
 
 interface BrandCollaborationSectionProps {
   activeBrandFilter: BrandId | 'all';
-  onSelectBrand: (brand: BrandId) => void;
+  onSelectBrand: (brand: BrandPartner['id']) => void;
 }
 
 export const BrandCollaborationSection: React.FC<BrandCollaborationSectionProps> = ({

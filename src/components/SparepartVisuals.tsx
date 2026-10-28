@@ -350,6 +350,35 @@ export const HeroFloatingShowcase: React.FC = () => {
 };
 
 /**
+ * Renders the uploaded Scoopy Art product image framed cleanly to its 1:1 center poster,
+ * or falls back to the transparent SVG product illustration when no photo is provided.
+ */
+export const ProductShowcaseImage: React.FC<{
+  imageUrl?: string;
+  alt: string;
+  categoryId: CategoryId;
+  className?: string;
+}> = ({ imageUrl, alt, categoryId, className = '' }) => {
+  if (imageUrl) {
+    return (
+      <div
+        className={`relative aspect-square h-full max-h-full mx-auto overflow-hidden rounded-xl border border-neutral-200/80 bg-[#F8F9FA] shadow-xs ${className}`}
+      >
+        <img
+          src={imageUrl}
+          alt={alt}
+          referrerPolicy="no-referrer"
+          loading="lazy"
+          className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+        />
+      </div>
+    );
+  }
+
+  return <CategoryProductVisual categoryId={categoryId} className={className} />;
+};
+
+/**
  * Pure transparent PNG-style product visual for each of the 5 sparepart categories
  */
 export const CategoryProductVisual: React.FC<{

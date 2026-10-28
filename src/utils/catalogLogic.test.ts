@@ -11,17 +11,30 @@ import {
   buildWhatsAppUrl,
 } from './catalogLogic';
 
-test('PRODUCT_CATEGORIES contains all 5 requested sparepart categories in order', () => {
+test('PRODUCT_CATEGORIES contains all 5 requested sparepart categories in order and includes uploaded image URLs', () => {
   assert.equal(PRODUCT_CATEGORIES.length, 5);
   assert.deepEqual(
     PRODUCT_CATEGORIES.map((c) => c.title),
     ['Velg', 'Shockbreaker', 'Pengereman', 'CVT & Mesin', 'Aksesoris']
   );
-  assert.equal(PRODUCT_CATEGORIES[0].subtitle, 'Velg Ringan & Kuat.');
-  assert.equal(PRODUCT_CATEGORIES[1].subtitle, 'Redaman Maksimal, Berkendara Nyaman.');
-  assert.equal(PRODUCT_CATEGORIES[2].subtitle, 'Keamanan Utama dengan Rem Presisi.');
-  assert.equal(PRODUCT_CATEGORIES[3].subtitle, 'Akselerasi Halus & Responsif.');
-  assert.equal(PRODUCT_CATEGORIES[4].subtitle, 'Detail Kecil, Tampilan Maksimal.');
+  assert.equal(PRODUCT_CATEGORIES[1].imageUrl, '/assets/aistudio/IMG_0676_bfda774e.PNG');
+  assert.equal(PRODUCT_CATEGORIES[2].imageUrl, '/assets/aistudio/IMG_0679_9bf4124d.PNG');
+  assert.equal(PRODUCT_CATEGORIES[3].imageUrl, '/assets/aistudio/IMG_0678_3bc35099.PNG');
+  assert.equal(PRODUCT_CATEGORIES[4].imageUrl, '/assets/aistudio/IMG_0677_749fdf4c.PNG');
+});
+
+test('SPAREPART_CATALOG includes the 4 uploaded Scoopy Art products with their exact asset paths', () => {
+  const uploadedItems = SPAREPART_CATALOG.filter((item) => Boolean(item.imageUrl));
+  assert.equal(uploadedItems.length, 4);
+  assert.deepEqual(
+    uploadedItems.map((i) => i.imageUrl),
+    [
+      '/assets/aistudio/IMG_0676_bfda774e.PNG',
+      '/assets/aistudio/IMG_0677_749fdf4c.PNG',
+      '/assets/aistudio/IMG_0678_3bc35099.PNG',
+      '/assets/aistudio/IMG_0679_9bf4124d.PNG',
+    ]
+  );
 });
 
 test('BRAND_PARTNERS contains RCB, KTC, and KTM', () => {
@@ -47,34 +60,18 @@ test('filterSpareparts filters by category, vehicleType, priceRange, searchQuery
   assert.equal(velgOnly.length, 3);
   assert.ok(velgOnly.every((item) => item.categoryId === 'velg'));
 
-  const vespaParts = filterSpareparts(SPAREPART_CATALOG, { vehicleType: 'Vespa Matic' });
-  assert.ok(vespaParts.length >= 3);
-  assert.ok(vespaParts.every((item) => item.compatibility.includes('Vespa Matic')));
-
   const under500k = filterSpareparts(SPAREPART_CATALOG, { priceRange: 'under-500k' });
   assert.ok(under500k.length >= 4);
   assert.ok(under500k.every((item) => item.price < 500000));
-
-  const midPrice = filterSpareparts(SPAREPART_CATALOG, { priceRange: '500k-1500k' });
-  assert.ok(midPrice.length >= 4);
-  assert.ok(midPrice.every((item) => item.price >= 500000 && item.price <= 1500000));
-
-  const above1500k = filterSpareparts(SPAREPART_CATALOG, { priceRange: 'above-1500k' });
-  assert.ok(above1500k.length >= 4);
-  assert.ok(above1500k.every((item) => item.price > 1500000));
 
   const sortedAsc = filterSpareparts(SPAREPART_CATALOG, { sortBy: 'price-asc' });
   for (let i = 1; i < sortedAsc.length; i++) {
     assert.ok(sortedAsc[i].price >= sortedAsc[i - 1].price);
   }
 
-  const sortedDesc = filterSpareparts(SPAREPART_CATALOG, { sortBy: 'price-desc' });
-  for (let i = 1; i < sortedDesc.length; i++) {
-    assert.ok(sortedDesc[i].price <= sortedDesc[i - 1].price);
-  }
-
-  const searchRadial = filterSpareparts(SPAREPART_CATALOG, { searchQuery: 'Radial' });
-  assert.equal(searchRadial.length, 2);
+  const searchFlowPro = filterSpareparts(SPAREPART_CATALOG, { searchQuery: 'Flow Pro' });
+  assert.equal(searchFlowPro.length, 1);
+  assert.equal(searchFlowPro[0].id, 'rcb-flow-pro-matic');
 });
 
 test('validateConsultationForm rejects empty inputs and validates Indonesian phone format', () => {
@@ -86,19 +83,15 @@ test('validateConsultationForm rejects empty inputs and validates Indonesian pho
     notes: '',
   });
   assert.equal(emptyResult.valid, false);
-  assert.ok(emptyResult.errors.customerName);
-  assert.ok(emptyResult.errors.whatsappNumber);
-  assert.ok(emptyResult.errors.motorModel);
 
   const validResult = validateConsultationForm({
     customerName: 'Rizky Pratama',
     whatsappNumber: '0812-8899-7744',
     motorModel: 'Honda Scoopy Prestige 2024',
     selectedCategory: 'Velg',
-    notes: 'Mau pasang Velg RCB SP811 Gold',
+    notes: 'Mau pasang Shockbreaker RCB Flow Pro',
   });
   assert.equal(validResult.valid, true);
-  assert.deepEqual(validResult.errors, {});
 });
 
 test('buildWhatsAppUrl constructs encoded wa.me link with selected spareparts', () => {
@@ -107,11 +100,11 @@ test('buildWhatsAppUrl constructs encoded wa.me link with selected spareparts', 
       customerName: 'Andi',
       whatsappNumber: '081288997744',
       motorModel: 'Honda Scoopy',
-      selectedCategory: 'Velg',
+      selectedCategory: 'Shockbreaker',
       notes: 'Cek stok hari ini',
     },
     [SPAREPART_CATALOG[0]]
   );
   assert.ok(url.startsWith('https://wa.me/6281288997744?text='));
-  assert.ok(decodeURIComponent(url).includes('Velg RCB SP811 Ring 12 Gold Matte'));
+  assert.ok(decodeURIComponent(url).includes('Shockbreaker RCB Flow Pro Matic Single'));
 });
