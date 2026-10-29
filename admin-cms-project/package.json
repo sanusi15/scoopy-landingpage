@@ -1,0 +1,20 @@
+{
+  "name": "scoopy-art-admin-cms",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Standalone Admin CMS Project for Scoopy Art Bekasi (Manajemen Katalog Sparepart, Kategori, Konsultasi WA & Pengaturan Konten)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3001",
+    "build": "vite build",
+    "preview": "vite preview --port 3001"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.1.1",
+    "lucide-react": "^0.546.0",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "vite": "^8.3.0"
+  }
+}

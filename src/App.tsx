@@ -3,31 +3,80 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrandId,
   CategoryId,
   SparepartItem,
-  SPAREPART_CATALOG,
   formatIDR,
 } from './utils/catalogLogic';
+import {
+  CmsDatabaseState,
+  ConsultationBookingRecord,
+  loadCmsState,
+  saveCmsState,
+} from './utils/cmsStore';
 import { ScoopyArtLogo, HeroFloatingShowcase } from './components/SparepartVisuals';
 import { CatalogSection } from './components/CatalogSection';
 import { FullCatalogPage } from './components/FullCatalogPage';
 import { BrandCollaborationSection } from './components/BrandCollaborationSection';
 import { LocationContactSection } from './components/LocationContactSection';
-import { MessageCircle, ArrowRight, ShoppingBag } from 'lucide-react';
+import { AdminCmsApp } from './admin-cms/AdminCmsApp';
+import { MessageCircle, ArrowRight, ShoppingBag, ShieldCheck } from 'lucide-react';
 
 type ActivePage = 'home' | 'catalog';
+type ActiveProjectWorkspace = 'storefront' | 'admin-cms';
 
 export default function App() {
+  // Check URL query parameter ?project=admin so direct navigation to separated Admin CMS works out of the box
+  const [activeWorkspace, setActiveWorkspace] = useState<ActiveProjectWorkspace>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('project') === 'admin' || window.location.pathname.includes('admin')) {
+        return 'admin-cms';
+      }
+    }
+    return 'storefront';
+  });
+
+  const [cmsState, setCmsState] = useState<CmsDatabaseState>(() => loadCmsState());
   const [activePage, setActivePage] = useState<ActivePage>('home');
   const [catalogInitialCategory, setCatalogInitialCategory] = useState<CategoryId | 'all'>('all');
   const [activeBrandFilter, setActiveBrandFilter] = useState<BrandId | 'all'>('all');
-  const [selectedItems, setSelectedItems] = useState<SparepartItem[]>([
-    SPAREPART_CATALOG[0],
-  ]);
+  const [selectedItems, setSelectedItems] = useState<SparepartItem[]>(() => {
+    const initial = loadCmsState().products;
+    return initial.length > 0 ? [initial[0]] : [];
+  });
   const [preselectedCategory, setPreselectedCategory] = useState<string>('Velg');
+
+  // Synchronize live changes from Admin CMS (`scoopy-cms-updated` custom event & cross-tab `storage`)
+  useEffect(() => {
+    const syncFromCms = () => {
+      const next = loadCmsState();
+      setCmsState(next);
+    };
+    window.addEventListener('scoopy-cms-updated', syncFromCms);
+    window.addEventListener('storage', syncFromCms);
+    return () => {
+      window.removeEventListener('scoopy-cms-updated', syncFromCms);
+      window.removeEventListener('storage', syncFromCms);
+    };
+  }, []);
+
+  const handleSwitchProject = (workspace: ActiveProjectWorkspace) => {
+    setActiveWorkspace(workspace);
+    setCmsState(loadCmsState());
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (workspace === 'admin-cms') {
+        url.searchParams.set('project', 'admin');
+      } else {
+        url.searchParams.delete('project');
+      }
+      window.history.replaceState({}, '', url.toString());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const handleToggleSelectItem = (item: SparepartItem) => {
     setSelectedItems((prev) => {
@@ -41,6 +90,15 @@ export default function App() {
 
   const handleRemoveSelectedItem = (id: string) => {
     setSelectedItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleCreateBookingFromStorefront = (booking: ConsultationBookingRecord) => {
+    const current = loadCmsState();
+    const updated = saveCmsState({
+      ...current,
+      bookings: [booking, ...current.bookings],
+    });
+    setCmsState(updated);
   };
 
   const handleOpenFullCatalog = (categoryId: CategoryId | 'all' = 'all', brand: BrandId | 'all' = 'all') => {
@@ -76,6 +134,19 @@ export default function App() {
       }
     }, 50);
   };
+
+  // =========================================================================
+  // RENDER SEPARATED ADMIN CMS PROJECT WHEN ACTIVE
+  // =========================================================================
+  if (activeWorkspace === 'admin-cms') {
+    return (
+      <AdminCmsApp
+        onOpenStorefront={() => handleSwitchProject('storefront')}
+      />
+    );
+  }
+
+  const { products, categories, settings } = cmsState;
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#212529]">
@@ -140,8 +211,18 @@ export default function App() {
             </button>
           </nav>
 
-          {/* Zone 3: Tombol CTA "Hubungi Kami" (Warna merah smooth / matte #E03A3E) */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Zone 3: Tombol CTA "Hubungi Kami" + Akses Cepat Project Admin CMS */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleSwitchProject('admin-cms')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#212529] bg-[#F8F9FA] hover:bg-neutral-200/80 border border-neutral-200/90 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              title="Buka Project Terpisah: Admin CMS Scoopy Art"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#E03A3E]" />
+              <span>Admin CMS</span>
+            </button>
+
             <button
               type="button"
               onClick={() => handleNavigateSection('lokasi')}
@@ -157,6 +238,8 @@ export default function App() {
         {activePage === 'catalog' ? (
           <FullCatalogPage
             key={`${catalogInitialCategory}-${activeBrandFilter}`}
+            products={products}
+            categories={categories}
             initialCategory={catalogInitialCategory}
             initialBrand={activeBrandFilter}
             selectedItems={selectedItems}
@@ -178,20 +261,25 @@ export default function App() {
                   {/* Left Column: Slogan Utama, Sub-slogan, & CTA Buttons */}
                   <div className="lg:col-span-6 space-y-6 animate-fade-in-up">
                     <div className="text-xs font-semibold tracking-wider uppercase text-[#E03A3E]">
-                      Spesialis Sparepart &amp; Estetika Motor · Bekasi, Jawa Barat
+                      {settings.heroTagline}
                     </div>
 
                     <h1
                       className="font-display font-bold tracking-tight text-[#212529] leading-[1.12] balance"
                       style={{ fontSize: 'clamp(2.25rem, 4vw, 3.5rem)' }}
                     >
-                      Upgrade Performa &amp; Estetika Motormu di{' '}
-                      <span className="text-[#E03A3E]">Scoopy Art.</span>
+                      {settings.heroHeadline.includes('Scoopy Art') ? (
+                        <>
+                          {settings.heroHeadline.replace('Scoopy Art.', '').replace('Scoopy Art', '')}
+                          <span className="text-[#E03A3E]">Scoopy Art.</span>
+                        </>
+                      ) : (
+                        settings.heroHeadline
+                      )}
                     </h1>
 
                     <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-xl">
-                      Pusat sparepart motor terlengkap dan berkualitas di Bekasi. Bikin motormu
-                      tampil beda dan lebih bertenaga.
+                      {settings.heroSubheadline}
                     </p>
 
                     {/* Primary & Secondary Hero Buttons */}
@@ -235,7 +323,7 @@ export default function App() {
                       </div>
                       <div>
                         <p className="font-mono text-xl sm:text-2xl font-bold text-[#212529] tabular-nums">
-                          5 Kategori
+                          {products.length} Part
                         </p>
                         <p className="text-xs text-neutral-500 mt-0.5">
                           Katalog Lengkap Ready
@@ -288,6 +376,8 @@ export default function App() {
                 3. BAGIAN KATEGORI PRODUK (Sparepart)
                ================================================================= */}
             <CatalogSection
+              products={products}
+              categories={categories}
               selectedItems={selectedItems}
               onToggleSelectItem={handleToggleSelectItem}
               onOpenFullCatalog={(catId) => handleOpenFullCatalog(catId || 'all', 'all')}
@@ -306,9 +396,12 @@ export default function App() {
                 5. BAGIAN TENTANG KAMI & LOKASI
                ================================================================= */}
             <LocationContactSection
+              settings={settings}
+              categories={categories}
               selectedItems={selectedItems}
               preselectedCategory={preselectedCategory}
               onRemoveSelectedItem={handleRemoveSelectedItem}
+              onCreateBooking={handleCreateBookingFromStorefront}
             />
           </>
         )}
@@ -330,10 +423,10 @@ export default function App() {
               </p>
             </div>
 
-            {/* Tengah: Link Cepat (Home, Katalog Lengkap, Produk, Kontak) */}
+            {/* Tengah: Link Cepat (Home, Katalog Lengkap, Produk, Kontak, Portal Admin CMS) */}
             <div className="md:col-span-4 space-y-3">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-white">
-                Link Cepat
+                Link Cepat &amp; Portal
               </h3>
               <ul className="space-y-2.5 text-sm text-neutral-400">
                 <li>
@@ -370,6 +463,16 @@ export default function App() {
                     className="hover:text-white transition-colors cursor-pointer"
                   >
                     Kontak &amp; Lokasi Bekasi
+                  </button>
+                </li>
+                <li className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchProject('admin-cms')}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#E03A3E] hover:text-red-400 transition-colors cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Buka Project Terpisah: Admin CMS →</span>
                   </button>
                 </li>
               </ul>
@@ -430,7 +533,7 @@ export default function App() {
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
             <p>© 2023 Scoopy Art. All Rights Reserved. Desain Bersih &amp; Elegan.</p>
             <p className="text-neutral-500">
-              Bekasi, Jawa Barat · @scoopyart_bekasi
+              Bekasi, Jawa Barat · {settings.instagramHandle}
             </p>
           </div>
         </div>

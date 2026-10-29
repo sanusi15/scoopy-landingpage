@@ -2,23 +2,35 @@ import React, { useState } from 'react';
 import {
   ConsultationFormInput,
   SparepartItem,
+  ProductCategory,
   PRODUCT_CATEGORIES,
   formatIDR,
   validateConsultationForm,
   buildWhatsAppUrl,
 } from '../utils/catalogLogic';
+import {
+  SiteSettings,
+  DEFAULT_SITE_SETTINGS,
+  ConsultationBookingRecord,
+} from '../utils/cmsStore';
 import { MapPin, Phone, Instagram, Clock, Send, CheckCircle2, Trash2 } from 'lucide-react';
 
 interface LocationContactSectionProps {
+  settings?: SiteSettings;
+  categories?: ProductCategory[];
   selectedItems: SparepartItem[];
   preselectedCategory: string;
   onRemoveSelectedItem: (id: string) => void;
+  onCreateBooking?: (booking: ConsultationBookingRecord) => void;
 }
 
 export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
+  settings = DEFAULT_SITE_SETTINGS,
+  categories = PRODUCT_CATEGORIES,
   selectedItems,
   preselectedCategory,
   onRemoveSelectedItem,
+  onCreateBooking,
 }) => {
   const [formData, setFormData] = useState<ConsultationFormInput>({
     customerName: '',
@@ -51,6 +63,22 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
     setErrors({});
     const waUrl = buildWhatsAppUrl(formData, selectedItems);
     setSubmittedPreviewUrl(waUrl);
+
+    if (onCreateBooking) {
+      const newBooking: ConsultationBookingRecord = {
+        id: `BKG-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+        createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        customerName: formData.customerName.trim(),
+        whatsappNumber: formData.whatsappNumber.trim(),
+        motorModel: formData.motorModel.trim(),
+        selectedCategory: formData.selectedCategory,
+        notes: formData.notes.trim(),
+        selectedPartNames: selectedItems.map((i) => i.name),
+        estimatedTotal: totalEstimate,
+        status: 'Menunggu Konfirmasi',
+      };
+      onCreateBooking(newBooking);
+    }
   };
 
   return (
@@ -72,13 +100,10 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
                 id="heading-tentang-lokasi"
                 className="text-2xl sm:text-4xl font-bold tracking-tight text-[#212529] balance"
               >
-                Bengkel &amp; Sparepart Terpercaya di Bekasi
+                {settings.aboutHeadline}
               </h2>
               <p className="mt-4 text-base text-neutral-600 leading-relaxed">
-                Scoopy Art hadir di Bekasi, Jawa Barat, untuk memenuhi kebutuhan para pecinta
-                motor yang menginginkan sparepart berkualitas tinggi. Kami tidak hanya menjual
-                alat motor, tapi juga memberikan solusi estetika dan performa terbaik untuk
-                motor kesayangan Anda.
+                {settings.aboutDescription}
               </p>
             </div>
 
@@ -93,10 +118,7 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
                   <MapPin className="w-5 h-5 text-[#E03A3E] shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-[#212529]">Alamat Bengkel &amp; Showroom</p>
-                    <p className="text-neutral-600 mt-0.5">
-                      Jl. Raya Kalimalang No. 88, Jakasampurna, Kec. Bekasi Barat, Kota Bekasi,
-                      Jawa Barat 17145
-                    </p>
+                    <p className="text-neutral-600 mt-0.5">{settings.address}</p>
                   </div>
                 </div>
 
@@ -105,7 +127,7 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
                   <div>
                     <p className="font-semibold text-[#212529]">WhatsApp Konsultasi &amp; Booking</p>
                     <p className="text-neutral-600 mt-0.5 font-mono">
-                      0812-8899-7744 (08xx-xxxx-xxxx)
+                      {settings.whatsappDisplay} (08xx-xxxx-xxxx)
                     </p>
                   </div>
                 </div>
@@ -114,7 +136,7 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
                   <Instagram className="w-5 h-5 text-[#E03A3E] shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-[#212529]">Instagram Resmi</p>
-                    <p className="text-neutral-600 mt-0.5">@scoopyart_bekasi</p>
+                    <p className="text-neutral-600 mt-0.5">{settings.instagramHandle}</p>
                   </div>
                 </div>
 
@@ -122,9 +144,7 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
                   <Clock className="w-5 h-5 text-[#E03A3E] shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-[#212529]">Jam Buka Workshop</p>
-                    <p className="text-neutral-600 mt-0.5">
-                      Senin – Minggu · 09.00 – 20.00 WIB
-                    </p>
+                    <p className="text-neutral-600 mt-0.5">{settings.operatingHours}</p>
                   </div>
                 </div>
               </div>
@@ -291,7 +311,7 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
                     }
                     className="w-full px-3.5 py-2.5 text-sm bg-[#F8F9FA] border border-neutral-200 rounded-lg text-[#212529] focus:bg-white focus:outline-none focus:border-[#E03A3E]"
                   >
-                    {PRODUCT_CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                       <option key={cat.id} value={cat.title}>
                         {cat.title} — {cat.subtitle}
                       </option>
@@ -340,7 +360,7 @@ export const LocationContactSection: React.FC<LocationContactSectionProps> = ({
                   <p className="text-xs text-emerald-800 leading-relaxed">
                     Halo <strong>{formData.customerName}</strong>, detail konsultasi untuk{' '}
                     <strong>{formData.motorModel}</strong> ({formData.selectedCategory}) telah
-                    disiapkan untuk Admin Scoopy Art Bekasi.
+                    disiapkan untuk Admin Scoopy Art Bekasi dan tercatat di sistem CMS.
                   </p>
                   <a
                     href={submittedPreviewUrl}

@@ -10,6 +10,13 @@ import {
   validateConsultationForm,
   buildWhatsAppUrl,
 } from './catalogLogic';
+import {
+  getInitialCmsState,
+  validateProductForm,
+  addOrUpdateProductInState,
+  deleteProductFromState,
+  toggleProductStockInState,
+} from './cmsStore';
 
 test('PRODUCT_CATEGORIES contains all 5 requested sparepart categories in order and includes uploaded image URLs', () => {
   assert.equal(PRODUCT_CATEGORIES.length, 5);
@@ -107,4 +114,47 @@ test('buildWhatsAppUrl constructs encoded wa.me link with selected spareparts', 
   );
   assert.ok(url.startsWith('https://wa.me/6281288997744?text='));
   assert.ok(decodeURIComponent(url).includes('Shockbreaker RCB Flow Pro Matic Single'));
+});
+
+test('CMS CRUD operations validate, add, update, toggle stock, and delete products accurately', () => {
+  const initialState = getInitialCmsState();
+  const initialCount = initialState.products.length;
+
+  const invalidValidation = validateProductForm({
+    name: '',
+    categoryId: 'velg',
+    brand: 'RCB',
+    price: 0,
+    compatibilityText: '',
+    specSummary: '',
+    weightOrDimension: '',
+    inStock: true,
+    isFeatured: false,
+  });
+  assert.equal(invalidValidation.valid, false);
+
+  const validInput = {
+    name: 'Kaliper RCB S26 2 Piston Black Anodized',
+    categoryId: 'pengereman' as const,
+    brand: 'RCB' as const,
+    price: 890000,
+    compatibilityText: 'Honda Scoopy, Honda Beat',
+    specSummary: 'Monoblock CNC 2 Piston dengan kampas keramik',
+    weightOrDimension: '2 Piston Radial',
+    inStock: true,
+    isFeatured: true,
+    imageUrl: '/assets/aistudio/IMG_0679_9bf4124d.PNG',
+  };
+  assert.equal(validateProductForm(validInput).valid, true);
+
+  const afterAdd = addOrUpdateProductInState(initialState, validInput);
+  assert.equal(afterAdd.products.length, initialCount + 1);
+  assert.equal(afterAdd.products[0].name, 'Kaliper RCB S26 2 Piston Black Anodized');
+
+  const addedId = afterAdd.products[0].id;
+  const afterToggle = toggleProductStockInState(afterAdd, addedId);
+  assert.equal(afterToggle.products[0].inStock, false);
+
+  const afterDelete = deleteProductFromState(afterToggle, addedId);
+  assert.equal(afterDelete.products.length, initialCount);
 });

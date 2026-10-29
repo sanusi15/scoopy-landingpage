@@ -8,6 +8,7 @@ import {
   BrandId,
   PriceRangeId,
   SortOptionId,
+  ProductCategory,
   SparepartItem,
   formatIDR,
   filterSpareparts,
@@ -30,6 +31,8 @@ import {
 } from 'lucide-react';
 
 interface FullCatalogPageProps {
+  products?: SparepartItem[];
+  categories?: ProductCategory[];
   initialCategory?: CategoryId | 'all';
   initialBrand?: BrandId | 'all';
   selectedItems: SparepartItem[];
@@ -39,6 +42,8 @@ interface FullCatalogPageProps {
 }
 
 export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
+  products = SPAREPART_CATALOG,
+  categories = PRODUCT_CATEGORIES,
   initialCategory = 'all',
   initialBrand = 'all',
   selectedItems,
@@ -55,7 +60,7 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
   const [sortBy, setSortBy] = useState<SortOptionId>('featured');
   const [inspectedItem, setInspectedItem] = useState<SparepartItem | null>(null);
 
-  const filteredItems = filterSpareparts(SPAREPART_CATALOG, {
+  const filteredItems = filterSpareparts(products, {
     categoryId,
     brand,
     vehicleType,
@@ -87,7 +92,7 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
   };
 
   const getCategoryTitle = (id: CategoryId) =>
-    PRODUCT_CATEGORIES.find((c) => c.id === id)?.title || id;
+    categories.find((c) => c.id === id)?.title || id;
 
   const totalSelectedPrice = selectedItems.reduce((sum, item) => sum + item.price, 0);
 
@@ -109,8 +114,8 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
             <div className="text-xs text-neutral-500">
               <span>Showroom Bekasi</span>
               <span aria-hidden="true"> · </span>
-              <span className="font-medium text-[#212529]">
-                {SPAREPART_CATALOG.length} Produk Original Ready Stock
+              <span className="font-medium text-[#212529] tabular-nums">
+                {products.length} Produk Original Ready Stock
               </span>
             </div>
           </div>
@@ -226,23 +231,23 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setCategoryId('all')}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer whitespace-nowrap truncate ${
+                  className={`px-3 py-2 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer whitespace-nowrap truncate tabular-nums ${
                     categoryId === 'all'
                       ? 'bg-[#212529] text-white'
                       : 'bg-[#F8F9FA] text-neutral-700 hover:bg-neutral-200/70'
                   }`}
                 >
-                  Semua Jenis ({SPAREPART_CATALOG.length})
+                  Semua Jenis ({products.length})
                 </button>
-                {PRODUCT_CATEGORIES.map((cat) => {
-                  const count = SPAREPART_CATALOG.filter((i) => i.categoryId === cat.id).length;
+                {categories.map((cat) => {
+                  const count = products.filter((i) => i.categoryId === cat.id).length;
                   const active = categoryId === cat.id;
                   return (
                     <button
                       key={cat.id}
                       type="button"
                       onClick={() => setCategoryId(cat.id)}
-                      className={`px-3 py-2 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer whitespace-nowrap truncate ${
+                      className={`px-3 py-2 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer whitespace-nowrap truncate tabular-nums ${
                         active
                           ? 'bg-[#E03A3E] text-white'
                           : 'bg-[#F8F9FA] text-neutral-700 hover:bg-neutral-200/70'
@@ -387,7 +392,7 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
                 <strong className="font-mono font-bold text-[#212529] tabular-nums">
                   {filteredItems.length}
                 </strong>{' '}
-                dari {SPAREPART_CATALOG.length} produk sparepart
+                dari {products.length} produk sparepart
                 {vehicleType !== 'all' && (
                   <span>
                     {' '}
@@ -457,7 +462,9 @@ export const FullCatalogPage: React.FC<FullCatalogPageProps> = ({
                             <span aria-hidden="true"> · </span>
                             <span>{item.weightOrDimension}</span>
                           </div>
-                          <span className="text-emerald-700 font-medium">Ready</span>
+                          <span className={item.inStock ? 'text-emerald-700 font-medium' : 'text-amber-700 font-medium'}>
+                            {item.inStock ? 'Ready' : 'Indent'}
+                          </span>
                         </div>
 
                         {/* Product Photo or Transparent Vector Illustration */}

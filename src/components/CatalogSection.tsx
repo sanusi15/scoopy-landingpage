@@ -3,6 +3,7 @@ import {
   PRODUCT_CATEGORIES,
   SPAREPART_CATALOG,
   CategoryId,
+  ProductCategory,
   SparepartItem,
   formatIDR,
 } from '../utils/catalogLogic';
@@ -10,6 +11,8 @@ import { ProductShowcaseImage } from './SparepartVisuals';
 import { ArrowUpRight, ArrowRight, Check, Plus } from 'lucide-react';
 
 interface CatalogSectionProps {
+  products?: SparepartItem[];
+  categories?: ProductCategory[];
   selectedItems: SparepartItem[];
   onToggleSelectItem: (item: SparepartItem) => void;
   onOpenFullCatalog: (categoryId?: CategoryId) => void;
@@ -17,12 +20,16 @@ interface CatalogSectionProps {
 }
 
 export const CatalogSection: React.FC<CatalogSectionProps> = ({
+  products = SPAREPART_CATALOG,
+  categories = PRODUCT_CATEGORIES,
   selectedItems,
   onToggleSelectItem,
   onOpenFullCatalog,
   onProceedToConsult,
 }) => {
-  const featuredCatalogWithPhotos = SPAREPART_CATALOG.filter((item) => Boolean(item.imageUrl));
+  const featuredCatalogWithPhotos = products.filter(
+    (item) => Boolean(item.imageUrl) || item.isFeatured
+  ).slice(0, 4);
   const isSelected = (id: string) => selectedItems.some((item) => item.id === id);
 
   return (
@@ -78,7 +85,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
               onClick={() => onOpenFullCatalog()}
               className="text-xs font-semibold text-[#E03A3E] hover:underline whitespace-nowrap shrink-0 cursor-pointer self-start sm:self-auto"
             >
-              Lihat Semua {SPAREPART_CATALOG.length} Produk di Katalog →
+              Lihat Semua {products.length} Produk di Katalog →
             </button>
           </div>
 
@@ -99,7 +106,9 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                       <span>
                         <strong className="text-[#212529]">{item.brand}</strong> · {item.weightOrDimension}
                       </span>
-                      <span className="text-emerald-700 font-medium">Ready</span>
+                      <span className={item.inStock ? 'text-emerald-700 font-medium' : 'text-amber-700 font-medium'}>
+                        {item.inStock ? 'Ready' : 'Indent'}
+                      </span>
                     </div>
 
                     <div className="w-full aspect-square mb-4">
@@ -159,7 +168,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
             5 MINIMALIST PRODUCT CATEGORY CARDS
            ================================================================= */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 lg:gap-8">
-          {PRODUCT_CATEGORIES.map((category, index) => {
+          {categories.map((category, index) => {
             const colSpanClass = index < 2 ? 'lg:col-span-3' : 'lg:col-span-2';
 
             return (
